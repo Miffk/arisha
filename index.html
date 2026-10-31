@@ -263,7 +263,7 @@
   }
   setTimeout(() => { nextPhrase(); setInterval(nextPhrase, 5200); }, (delay + 0.4) * 1000);
 
-  /* ---------- Музыка (Web Audio, сочинена прямо в коде) ---------- */
+  /* ---------- Музыка: пианино на Web Audio, мелодия сочинена прямо в коде ---------- */
   const music = (() => {
     let ac, master, wet, timer, playing = false;
     let step = 0, nextTime = 0;
@@ -303,49 +303,54 @@
     function init() {
       ac = new (window.AudioContext || window.webkitAudioContext)();
       const comp = ac.createDynamicsCompressor();
-      comp.connect(ac.destination);
+      const volume = ac.createGain();
+      volume.gain.value = 0.35; // общая громкость (0–1)
+      comp.connect(volume); volume.connect(ac.destination);
       master = ac.createGain();
       master.gain.value = 0;
       master.connect(comp);
       const rev = makeReverb();
-      wet = ac.createGain(); wet.gain.value = 0.45;
+      wet = ac.createGain(); wet.gain.value = 0.3;
       wet.connect(rev); rev.connect(master);
     }
 
-    // Нота «музыкальной шкатулки»: основной тон + звонкий обертон
-    function bell(midi, t, dur, vol) {
+    // Нота пианино: обертоны с лёгкой негармоничностью струны,
+    // яркая атака, которая постепенно становится мягче, и затухание
+    function piano(midi, t, dur, vol) {
       const f = mtof(midi);
-      const g = ac.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(vol, t + 0.008);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      g.connect(master); g.connect(wet);
-      [[1, 1, "sine"], [2, 0.25, "sine"], [4.01, 0.06, "sine"], [1, 0.18, "triangle"]].forEach(([mul, amp, type]) => {
+      vol *= 0.88 + Math.random() * 0.2; // живая «сила нажатия»
+      const out = ac.createGain();
+      const lp = ac.createBiquadFilter();
+      lp.type = "lowpass"; lp.Q.value = 0.4;
+      lp.frequency.setValueAtTime(Math.min(f * 9, 9000), t);
+      lp.frequency.setTargetAtTime(Math.max(f * 2.5, 500), t, 0.35);
+      const decay = 0.6 + Math.max(0, 96 - midi) * 0.045; // низкие ноты звучат дольше
+      out.gain.setValueAtTime(0, t);
+      out.gain.linearRampToValueAtTime(vol, t + 0.004);
+      out.gain.setTargetAtTime(vol * 0.45, t + 0.004, 0.12);
+      out.gain.setTargetAtTime(0, t + 0.15, decay);
+      out.gain.setTargetAtTime(0, t + dur, 0.15); // отпускание клавиши
+      lp.connect(out); out.connect(master); out.connect(wet);
+      const partials = [1, 0.55, 0.3, 0.18, 0.1, 0.06, 0.035];
+      const B = 0.00035;
+      partials.forEach((amp, i) => {
+        const n = i + 1;
         const o = ac.createOscillator();
-        const og = ac.createGain();
-        o.type = type; o.frequency.value = f * mul;
-        og.gain.value = amp;
-        o.connect(og); og.connect(g);
-        o.start(t); o.stop(t + dur + 0.05);
-      });
-    }
-
-    // Мягкий фон-пэд
-    function pad(notes, t, dur) {
-      notes.forEach(m => {
-        const o = ac.createOscillator();
-        const lp = ac.createBiquadFilter();
         const g = ac.createGain();
-        o.type = "sawtooth"; o.frequency.value = mtof(m);
-        o.detune.value = (Math.random() - 0.5) * 10;
-        lp.type = "lowpass"; lp.frequency.value = 700;
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(0.018, t + 1.2);
-        g.gain.setValueAtTime(0.018, t + dur - 0.8);
-        g.gain.linearRampToValueAtTime(0, t + dur + 0.6);
-        o.connect(lp); lp.connect(g); g.connect(master); g.connect(wet);
-        o.start(t); o.stop(t + dur + 0.7);
+        o.type = "sine";
+        o.frequency.value = f * n * Math.sqrt(1 + B * n * n);
+        g.gain.setValueAtTime(amp * 0.42, t);
+        g.gain.setTargetAtTime(0, t, 0.25 + 1.6 / n); // высокие обертоны гаснут быстрее
+        o.connect(g); g.connect(lp);
+        o.start(t); o.stop(t + dur + 1);
       });
+      // вторая струна хора, чуть расстроенная, даёт «рояльную» глубину
+      const o2 = ac.createOscillator();
+      const g2 = ac.createGain();
+      o2.type = "triangle"; o2.frequency.value = f; o2.detune.value = 1.5;
+      g2.gain.value = 0.12;
+      o2.connect(g2); g2.connect(lp);
+      o2.start(t); o2.stop(t + dur + 1);
     }
 
     function schedule(s, t) {
@@ -353,15 +358,17 @@
       const pos = s % 8;
       const loop = Math.floor(s / 64);
       const chord = chords[bar];
+      const barLeft = (8 - pos) * EIGHTH; // правая педаль: держим до конца такта
       if (pos === 0) {
-        bell(chord[0] - 12, t, 3.2, 0.10);
-        pad(chord.slice(1), t, EIGHTH * 8);
+        const bass = chord[0] >= 45 ? chord[0] - 12 : chord[0];
+        piano(bass, t, barLeft + 0.3, 0.16);
       }
-      bell(chord[arp[pos]] + 12, t, 1.6, 0.045);
+      const a = chord[arp[pos]];
+      piano(a < 52 ? a + 12 : a, t, barLeft + 0.2, 0.06);
       for (const [beat, n, len] of melody[bar]) {
         if (beat * 2 === pos) {
-          bell(n, t, Math.max(1.6, len * EIGHTH * 2 + 1), 0.13);
-          if (loop % 2 === 1) bell(n + 12, t, 1.5, 0.035);
+          piano(n, t, len * EIGHTH * 2 + 0.25, 0.17);
+          if (loop % 2 === 1) piano(n + 12, t, len * EIGHTH * 2, 0.05);
         }
       }
     }
