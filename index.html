@@ -4,22 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ариша, я тебя люблю</title>
-<meta name="description" content="Для самой любимой ❤">
-<meta property="og:title" content="Ариша, я тебя люблю ❤">
+<meta name="description" content="Для самой любимой 💚">
+<meta name="theme-color" content="#001a12">
+<meta property="og:title" content="Ариша, я тебя люблю 💚">
 <meta property="og:description" content="Открой — это для тебя">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-1: #12001f;
-    --bg-2: #3a0a3d;
-    --bg-3: #7a1748;
-    --rose: #ff7aa8;
-    --rose-soft: #ffd1e1;
-    --gold: #ffe2b8;
-    --text: #fff5f8;
+    --bg-1: #00140e;
+    --bg-2: #04372a;
+    --bg-3: #0c6a4a;
+    --mint: #7af0b5;
+    --mint-soft: #c9f7dd;
+    --gold: #f3e3a6;
+    --text: #f2fff7;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -38,19 +39,30 @@
   #sky { z-index: 0; }
   #fx { z-index: 2; pointer-events: none; }
 
+  /* Северное сияние */
   .aurora {
     position: fixed; inset: -20%;
     z-index: 1; pointer-events: none;
     background:
-      radial-gradient(40% 30% at 30% 40%, rgba(255,122,168,.22), transparent 70%),
-      radial-gradient(35% 28% at 70% 60%, rgba(186,104,255,.18), transparent 70%),
-      radial-gradient(30% 25% at 50% 30%, rgba(255,214,170,.12), transparent 70%);
+      radial-gradient(45% 22% at 30% 30%, rgba(60,230,150,.26), transparent 70%),
+      radial-gradient(40% 20% at 70% 45%, rgba(40,200,190,.18), transparent 70%),
+      radial-gradient(30% 25% at 50% 70%, rgba(243,227,166,.10), transparent 70%);
     filter: blur(30px);
-    animation: drift 18s ease-in-out infinite alternate;
+    animation: drift 16s ease-in-out infinite alternate;
+  }
+  .aurora.two {
+    background:
+      radial-gradient(35% 14% at 60% 25%, rgba(120,255,180,.18), transparent 70%),
+      radial-gradient(30% 16% at 25% 60%, rgba(30,170,120,.20), transparent 70%);
+    animation: drift2 22s ease-in-out infinite alternate;
   }
   @keyframes drift {
-    0%   { transform: translate(-3%, -2%) rotate(0deg) scale(1); }
-    100% { transform: translate(3%, 2%) rotate(8deg) scale(1.08); }
+    0%   { transform: translate(-4%, -2%) rotate(-4deg) scale(1); }
+    100% { transform: translate(4%, 3%) rotate(6deg) scale(1.1); }
+  }
+  @keyframes drift2 {
+    0%   { transform: translate(5%, 2%) rotate(5deg) scale(1.05); opacity: .6; }
+    100% { transform: translate(-5%, -3%) rotate(-6deg) scale(.95); opacity: 1; }
   }
 
   main {
@@ -67,7 +79,7 @@
     width: clamp(90px, 22vw, 150px);
     aspect-ratio: 1;
     margin-bottom: clamp(12px, 3vh, 28px);
-    filter: drop-shadow(0 0 22px rgba(255,90,140,.75)) drop-shadow(0 0 60px rgba(255,90,140,.45));
+    filter: drop-shadow(0 0 22px rgba(60,230,150,.7)) drop-shadow(0 0 60px rgba(60,230,150,.4));
     opacity: 0;
     animation: appear 1.4s .2s cubic-bezier(.2,.8,.2,1) forwards, beat 1.3s 1.8s ease-in-out infinite;
   }
@@ -84,7 +96,7 @@
     font-family: "Marck Script", cursive;
     font-weight: 400;
     line-height: 1.1;
-    font-size: clamp(54px, 13vw, 150px);
+    font-size: clamp(56px, 14vw, 150px);
     letter-spacing: .01em;
   }
   h1 .line { display: block; white-space: nowrap; }
@@ -93,11 +105,11 @@
     opacity: 0;
     transform: translateY(.4em) scale(.9);
     filter: blur(10px);
-    background: linear-gradient(100deg, #fff 0%, var(--rose-soft) 30%, var(--gold) 50%, var(--rose-soft) 70%, #fff 100%);
+    background: linear-gradient(100deg, #fff 0%, var(--mint-soft) 30%, var(--gold) 50%, var(--mint-soft) 70%, #fff 100%);
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text;
     color: transparent;
-    text-shadow: 0 0 40px rgba(255,140,180,.35);
+    text-shadow: 0 0 40px rgba(90,240,170,.35);
     animation:
       letter 1s cubic-bezier(.2,.8,.2,1) forwards,
       shimmer 6s linear infinite;
@@ -110,7 +122,7 @@
     margin-top: clamp(16px, 4vh, 36px);
     font-style: italic;
     font-size: clamp(18px, 3.6vw, 28px);
-    color: var(--rose-soft);
+    color: var(--mint-soft);
     opacity: 0;
     letter-spacing: .04em;
     min-height: 1.5em;
@@ -123,21 +135,45 @@
     left: 0; right: 0; bottom: max(20px, env(safe-area-inset-bottom));
     text-align: center;
     font-size: 15px; letter-spacing: .2em; text-transform: lowercase;
-    color: rgba(255,220,232,.55);
+    color: rgba(200,247,221,.6);
     opacity: 0;
     animation: fadeIn 2s 5.5s forwards, breathe 3s 7.5s ease-in-out infinite;
     pointer-events: none;
   }
   @keyframes fadeIn { to { opacity: 1; } }
-  @keyframes breathe { 0%,100% { opacity: .35; } 50% { opacity: .8; } }
+  @keyframes breathe { 0%,100% { opacity: .35; } 50% { opacity: .85; } }
 
   .counter {
     position: fixed; z-index: 3; top: max(16px, env(safe-area-inset-top)); right: 16px;
-    font-size: 15px; color: rgba(255,220,232,.6);
+    font-size: 15px; color: rgba(200,247,221,.65);
     opacity: 0; transition: opacity .6s;
     pointer-events: none;
   }
   .counter.show { opacity: 1; }
+
+  /* Кнопка музыки */
+  .music {
+    position: fixed; z-index: 4;
+    top: max(12px, env(safe-area-inset-top)); left: 12px;
+    width: 46px; height: 46px; border-radius: 50%;
+    display: grid; place-items: center;
+    border: 1px solid rgba(122,240,181,.35);
+    background: rgba(4,55,42,.45);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: var(--mint-soft);
+    cursor: pointer;
+    transition: transform .2s, background .3s, box-shadow .3s;
+  }
+  .music:hover { transform: scale(1.06); background: rgba(12,106,74,.55); }
+  .music:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+  .music.on { box-shadow: 0 0 18px rgba(60,230,150,.45); }
+  .bars { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
+  .bars i { display: block; width: 3px; height: 4px; border-radius: 2px; background: currentColor; transition: height .3s; }
+  .music.on .bars i { animation: eq 1s ease-in-out infinite; }
+  .music.on .bars i:nth-child(2) { animation-delay: -.3s; }
+  .music.on .bars i:nth-child(3) { animation-delay: -.6s; }
+  .music.on .bars i:nth-child(4) { animation-delay: -.15s; }
+  @keyframes eq { 0%,100% { height: 4px; } 50% { height: 16px; } }
 
   @media (prefers-reduced-motion: reduce) {
     .aurora, .heart { animation: appear .01s forwards; }
@@ -148,15 +184,20 @@
 <body>
   <canvas id="sky"></canvas>
   <div class="aurora"></div>
+  <div class="aurora two"></div>
   <canvas id="fx"></canvas>
+
+  <button class="music" id="music" type="button" aria-label="Включить музыку" aria-pressed="false">
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  </button>
 
   <main>
     <svg class="heart" viewBox="0 0 100 100" aria-hidden="true">
       <defs>
         <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#ffb3cc"/>
-          <stop offset=".45" stop-color="#ff4f8b"/>
-          <stop offset="1" stop-color="#c2185b"/>
+          <stop offset="0" stop-color="#c9f7dd"/>
+          <stop offset=".45" stop-color="#2ecc8f"/>
+          <stop offset="1" stop-color="#0a6b48"/>
         </linearGradient>
         <radialGradient id="hl" cx=".32" cy=".3" r=".35">
           <stop offset="0" stop-color="#fff" stop-opacity=".85"/>
@@ -172,7 +213,7 @@
   </main>
 
   <div class="counter" id="counter"></div>
-  <div class="hint">коснись экрана ♡</div>
+  <div class="hint" id="hint">коснись экрана ♪ ♡</div>
 
 <script>
 (() => {
@@ -222,6 +263,162 @@
   }
   setTimeout(() => { nextPhrase(); setInterval(nextPhrase, 5200); }, (delay + 0.4) * 1000);
 
+  /* ---------- Музыка (Web Audio, сочинена прямо в коде) ---------- */
+  const music = (() => {
+    let ac, master, wet, timer, playing = false;
+    let step = 0, nextTime = 0;
+    const BPM = 70, EIGHTH = 60 / BPM / 2;
+    const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+
+    // Аккорды: C G Am Em F C Dm G
+    const chords = [
+      [48, 55, 64, 67], [43, 50, 59, 62], [45, 52, 60, 64], [40, 47, 55, 59],
+      [41, 48, 57, 60], [48, 55, 64, 67], [38, 45, 53, 57], [43, 50, 59, 62]
+    ];
+    // Мелодия: [доля, нота, длительность в долях]
+    const melody = [
+      [[0, 76, 1.5], [1.5, 74, .5], [2, 72, 2]],
+      [[0, 74, 1.5], [1.5, 72, .5], [2, 71, 2]],
+      [[0, 72, 1], [1, 71, 1], [2, 69, 1], [3, 72, 1]],
+      [[0, 71, 3], [3, 67, 1]],
+      [[0, 69, 1.5], [1.5, 71, .5], [2, 72, 1], [3, 77, 1]],
+      [[0, 76, 2], [2, 72, 2]],
+      [[0, 74, 1], [1, 72, 1], [2, 69, 1], [3, 74, 1]],
+      [[0, 71, 2], [2, 74, 1], [3, 79, 1]]
+    ];
+    const arp = [0, 1, 2, 3, 2, 1, 2, 1];
+
+    function makeReverb() {
+      const len = ac.sampleRate * 3.2;
+      const buf = ac.createBuffer(2, len, ac.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = buf.getChannelData(ch);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+      }
+      const conv = ac.createConvolver();
+      conv.buffer = buf;
+      return conv;
+    }
+
+    function init() {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      const comp = ac.createDynamicsCompressor();
+      comp.connect(ac.destination);
+      master = ac.createGain();
+      master.gain.value = 0;
+      master.connect(comp);
+      const rev = makeReverb();
+      wet = ac.createGain(); wet.gain.value = 0.45;
+      wet.connect(rev); rev.connect(master);
+    }
+
+    // Нота «музыкальной шкатулки»: основной тон + звонкий обертон
+    function bell(midi, t, dur, vol) {
+      const f = mtof(midi);
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      g.connect(master); g.connect(wet);
+      [[1, 1, "sine"], [2, 0.25, "sine"], [4.01, 0.06, "sine"], [1, 0.18, "triangle"]].forEach(([mul, amp, type]) => {
+        const o = ac.createOscillator();
+        const og = ac.createGain();
+        o.type = type; o.frequency.value = f * mul;
+        og.gain.value = amp;
+        o.connect(og); og.connect(g);
+        o.start(t); o.stop(t + dur + 0.05);
+      });
+    }
+
+    // Мягкий фон-пэд
+    function pad(notes, t, dur) {
+      notes.forEach(m => {
+        const o = ac.createOscillator();
+        const lp = ac.createBiquadFilter();
+        const g = ac.createGain();
+        o.type = "sawtooth"; o.frequency.value = mtof(m);
+        o.detune.value = (Math.random() - 0.5) * 10;
+        lp.type = "lowpass"; lp.frequency.value = 700;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.018, t + 1.2);
+        g.gain.setValueAtTime(0.018, t + dur - 0.8);
+        g.gain.linearRampToValueAtTime(0, t + dur + 0.6);
+        o.connect(lp); lp.connect(g); g.connect(master); g.connect(wet);
+        o.start(t); o.stop(t + dur + 0.7);
+      });
+    }
+
+    function schedule(s, t) {
+      const bar = Math.floor(s / 8) % 8;
+      const pos = s % 8;
+      const loop = Math.floor(s / 64);
+      const chord = chords[bar];
+      if (pos === 0) {
+        bell(chord[0] - 12, t, 3.2, 0.10);
+        pad(chord.slice(1), t, EIGHTH * 8);
+      }
+      bell(chord[arp[pos]] + 12, t, 1.6, 0.045);
+      for (const [beat, n, len] of melody[bar]) {
+        if (beat * 2 === pos) {
+          bell(n, t, Math.max(1.6, len * EIGHTH * 2 + 1), 0.13);
+          if (loop % 2 === 1) bell(n + 12, t, 1.5, 0.035);
+        }
+      }
+    }
+
+    function tick() {
+      while (nextTime < ac.currentTime + 0.25) {
+        schedule(step, nextTime);
+        step++;
+        nextTime += EIGHTH;
+      }
+    }
+
+    return {
+      get playing() { return playing; },
+      start() {
+        if (!ac) init();
+        ac.resume();
+        playing = true;
+        nextTime = ac.currentTime + 0.1;
+        master.gain.cancelScheduledValues(ac.currentTime);
+        master.gain.setValueAtTime(master.gain.value, ac.currentTime);
+        master.gain.linearRampToValueAtTime(0.9, ac.currentTime + 1.5);
+        clearInterval(timer);
+        timer = setInterval(tick, 40);
+        tick();
+      },
+      stop() {
+        if (!ac) return;
+        playing = false;
+        clearInterval(timer);
+        master.gain.cancelScheduledValues(ac.currentTime);
+        master.gain.setValueAtTime(master.gain.value, ac.currentTime);
+        master.gain.linearRampToValueAtTime(0, ac.currentTime + 0.6);
+      },
+      suspend() { if (ac) ac.suspend(); },
+      resume() { if (ac && playing) ac.resume(); }
+    };
+  })();
+
+  const musicBtn = document.getElementById("music");
+  function setMusic(on) {
+    on ? music.start() : music.stop();
+    musicBtn.classList.toggle("on", on);
+    musicBtn.setAttribute("aria-pressed", String(on));
+    musicBtn.setAttribute("aria-label", on ? "Выключить музыку" : "Включить музыку");
+  }
+  let userTouchedMusic = false;
+  musicBtn.addEventListener("pointerdown", e => e.stopPropagation());
+  musicBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    userTouchedMusic = true;
+    setMusic(!music.playing);
+  });
+  document.addEventListener("visibilitychange", () => {
+    document.hidden ? music.suspend() : music.resume();
+  });
+
   /* ---------- Звёздное небо ---------- */
   const sky = document.getElementById("sky");
   const sctx = sky.getContext("2d");
@@ -259,7 +456,7 @@
     c.closePath();
   }
 
-  const palette = ["#ff4f8b", "#ff7aa8", "#ffb3cc", "#ff9a8b", "#e2558f", "#ffd1e1", "#c86bff"];
+  const palette = ["#2ecc8f", "#3ddc97", "#7af0b5", "#c9f7dd", "#9be15d", "#1fa57a", "#f3e3a6", "#5fe0c8"];
   const floaters = [];
   const bursts = [];
   const shooting = [];
@@ -308,24 +505,24 @@
     taps++;
     counter.textContent = `${tapWords[Math.min(tapWords.length - 1, Math.floor(taps / 10))]} × ${taps}`;
     counter.classList.add("show");
+    // первое касание включает музыку (браузеры не дают играть звук без касания)
+    if (!userTouchedMusic && !music.playing) { userTouchedMusic = true; setMusic(true); }
   });
 
-  // Небольшой салют из сердечек после появления текста
+  // Салют из сердечек после появления текста
   setTimeout(() => burst(W / 2, H / 2, 60), (delay + 0.2) * 1000);
 
   /* ---------- Анимация ---------- */
   let t = 0;
   function frame() {
     t++;
-    // небо
     sctx.clearRect(0, 0, W, H);
     for (const s of stars) {
       const a = 0.35 + Math.sin(t * s.s + s.p) * 0.35 + 0.3;
       sctx.globalAlpha = Math.max(0, Math.min(1, a));
-      sctx.fillStyle = "#fff";
+      sctx.fillStyle = "#eafff3";
       sctx.beginPath(); sctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); sctx.fill();
     }
-    // падающие звёзды
     if (Math.random() < 0.004) {
       shooting.push({ x: Math.random() * W * 0.8, y: Math.random() * H * 0.4, vx: 7 + Math.random() * 4, vy: 3 + Math.random() * 2, life: 1 });
     }
@@ -333,8 +530,8 @@
       const s = shooting[i];
       s.x += s.vx; s.y += s.vy; s.life -= 0.018;
       const g = sctx.createLinearGradient(s.x, s.y, s.x - s.vx * 12, s.y - s.vy * 12);
-      g.addColorStop(0, `rgba(255,240,245,${s.life})`);
-      g.addColorStop(1, "rgba(255,240,245,0)");
+      g.addColorStop(0, `rgba(220,255,235,${Math.max(0, s.life)})`);
+      g.addColorStop(1, "rgba(220,255,235,0)");
       sctx.globalAlpha = 1;
       sctx.strokeStyle = g; sctx.lineWidth = 1.6;
       sctx.beginPath(); sctx.moveTo(s.x, s.y); sctx.lineTo(s.x - s.vx * 12, s.y - s.vy * 12); sctx.stroke();
@@ -342,7 +539,6 @@
     }
     sctx.globalAlpha = 1;
 
-    // сердечки
     ctx.clearRect(0, 0, W, H);
     for (let i = floaters.length - 1; i >= 0; i--) {
       const f = floaters[i];
