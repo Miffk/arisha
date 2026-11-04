@@ -151,11 +151,49 @@
   }
   .counter.show { opacity: 1; }
 
-  /* Кнопка музыки */
-  .music {
+  /* Панель музыки: кнопка + громкость */
+  .player {
     position: fixed; z-index: 4;
     top: max(12px, env(safe-area-inset-top)); left: 12px;
-    width: 46px; height: 46px; border-radius: 50%;
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 14px 4px 4px;
+    border-radius: 999px;
+    border: 1px solid rgba(122,240,181,.25);
+    background: rgba(4,55,42,.35);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    cursor: default;
+  }
+  .vol {
+    -webkit-appearance: none; appearance: none;
+    width: clamp(80px, 22vw, 120px); height: 24px;
+    background: transparent; cursor: pointer;
+    --p: 25%;
+  }
+  .vol:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 4px; }
+  .vol::-webkit-slider-runnable-track {
+    height: 4px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--mint) var(--p), rgba(201,247,221,.22) var(--p));
+  }
+  .vol::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(201,247,221,.22); }
+  .vol::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--mint); }
+  .vol::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; margin-top: -6px; border-radius: 50%;
+    background: var(--mint-soft); border: none;
+    box-shadow: 0 0 10px rgba(60,230,150,.7);
+  }
+  .vol::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--mint-soft); border: none;
+    box-shadow: 0 0 10px rgba(60,230,150,.7);
+  }
+  .vol-val {
+    min-width: 3ch; font-size: 15px; color: rgba(201,247,221,.8);
+    font-variant-numeric: tabular-nums; text-align: right;
+  }
+  .music {
+    flex: none;
+    width: 40px; height: 40px; border-radius: 50%;
     display: grid; place-items: center;
     border: 1px solid rgba(122,240,181,.35);
     background: rgba(4,55,42,.45);
@@ -187,9 +225,13 @@
   <div class="aurora two"></div>
   <canvas id="fx"></canvas>
 
-  <button class="music" id="music" type="button" aria-label="Включить музыку" aria-pressed="false">
-    <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-  </button>
+  <div class="player" id="player">
+    <button class="music" id="music" type="button" aria-label="Включить музыку" aria-pressed="false">
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </button>
+    <input class="vol" id="vol" type="range" min="0" max="100" step="1" value="25" aria-label="Громкость музыки">
+    <span class="vol-val" id="volVal" aria-hidden="true">25%</span>
+  </div>
 
   <main>
     <svg class="heart" viewBox="0 0 100 100" aria-hidden="true">
@@ -265,7 +307,8 @@
 
   /* ---------- Музыка: пианино на Web Audio, мелодия сочинена прямо в коде ---------- */
   const music = (() => {
-    let ac, master, wet, timer, playing = false;
+    let ac, master, wet, volume, timer, playing = false;
+    let userVolume = 0.25; // 0–1, по умолчанию 25%
     let step = 0, nextTime = 0;
     const BPM = 70, EIGHTH = 60 / BPM / 2;
     const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
@@ -303,8 +346,8 @@
     function init() {
       ac = new (window.AudioContext || window.webkitAudioContext)();
       const comp = ac.createDynamicsCompressor();
-      const volume = ac.createGain();
-      volume.gain.value = 0.35; // общая громкость (0–1)
+      volume = ac.createGain();
+      volume.gain.value = userVolume;
       comp.connect(volume); volume.connect(ac.destination);
       master = ac.createGain();
       master.gain.value = 0;
@@ -403,6 +446,10 @@
         master.gain.setValueAtTime(master.gain.value, ac.currentTime);
         master.gain.linearRampToValueAtTime(0, ac.currentTime + 0.6);
       },
+      setVolume(v) {
+        userVolume = v;
+        if (volume) volume.gain.setTargetAtTime(v, ac.currentTime, 0.05);
+      },
       suspend() { if (ac) ac.suspend(); },
       resume() { if (ac && playing) ac.resume(); }
     };
@@ -416,7 +463,27 @@
     musicBtn.setAttribute("aria-label", on ? "Выключить музыку" : "Включить музыку");
   }
   let userTouchedMusic = false;
-  musicBtn.addEventListener("pointerdown", e => e.stopPropagation());
+  // Громкость: по умолчанию 25%, выбор сохраняется в браузере
+  const VOL_KEY = "arisha-volume";
+  const vol = document.getElementById("vol");
+  const volVal = document.getElementById("volVal");
+  function applyVolume(v, save) {
+    vol.value = v;
+    vol.style.setProperty("--p", v + "%");
+    volVal.textContent = v + "%";
+    music.setVolume(v / 100);
+    if (save) { try { localStorage.setItem(VOL_KEY, String(v)); } catch (e) {} }
+  }
+  let savedVol = 25;
+  try {
+    const raw = localStorage.getItem(VOL_KEY);
+    if (raw !== null && !isNaN(parseInt(raw, 10))) savedVol = Math.max(0, Math.min(100, parseInt(raw, 10)));
+  } catch (e) {}
+  applyVolume(savedVol, false);
+  vol.addEventListener("input", () => applyVolume(parseInt(vol.value, 10), true));
+
+  // касания панели музыки не считаются кликами-сердечками
+  document.getElementById("player").addEventListener("pointerdown", e => e.stopPropagation());
   musicBtn.addEventListener("click", e => {
     e.stopPropagation();
     userTouchedMusic = true;
