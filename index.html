@@ -505,16 +505,25 @@
 
   /* ---------- Клики / тапы ---------- */
   const counter = document.getElementById("counter");
+  // Клики сохраняются в браузере и не пропадают после перезагрузки страницы или компьютера
+  const TAPS_KEY = "arisha-taps";
   let taps = 0;
+  try { taps = parseInt(localStorage.getItem(TAPS_KEY), 10) || 0; } catch (e) {}
+  function showCounter() {
+    counter.textContent = `${tapWords[Math.min(tapWords.length - 1, Math.floor(taps / 10))]} × ${taps}`;
+    counter.classList.add("show");
+  }
   const tapWords = ["люблю", "очень люблю", "безумно люблю", "бесконечно люблю"];
   addEventListener("pointerdown", e => {
     burst(e.clientX, e.clientY);
     taps++;
-    counter.textContent = `${tapWords[Math.min(tapWords.length - 1, Math.floor(taps / 10))]} × ${taps}`;
-    counter.classList.add("show");
+    try { localStorage.setItem(TAPS_KEY, String(taps)); } catch (e) {}
+    showCounter();
     // первое касание включает музыку (браузеры не дают играть звук без касания)
     if (!userTouchedMusic && !music.playing) { userTouchedMusic = true; setMusic(true); }
   });
+
+  if (taps > 0) showCounter();
 
   // Салют из сердечек после появления текста
   setTimeout(() => burst(W / 2, H / 2, 60), (delay + 0.2) * 1000);
