@@ -305,10 +305,19 @@
   }
   setTimeout(() => { nextPhrase(); setInterval(nextPhrase, 5200); }, (delay + 0.4) * 1000);
 
-  /* ---------- Музыка: пианино на Web Audio, мелодия сочинена прямо в коде ---------- */
+  /* ---------- Музыка: песня music.mp3, запасной вариант — пианино на Web Audio ---------- */
   const music = (() => {
     let ac, master, wet, volume, timer, playing = false;
     let userVolume = 0.25; // 0–1, по умолчанию 25%
+
+    // Песня: файл music.mp3 рядом со страницей, грузим заранее.
+    // Если файл не загрузится, играет запасная мелодия на пианино.
+    let trackData = null, trackBuf = null, decoding = null;
+    let src = null, srcGain = null, srcStartedAt = 0, offset = 0, playToken = 0;
+    const trackLoad = fetch("music.mp3")
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(d => { trackData = d; })
+      .catch(() => {});
     let step = 0, nextTime = 0;
     const BPM = 70, EIGHTH = 60 / BPM / 2;
     const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
@@ -345,10 +354,14 @@
 
     function init() {
       ac = new (window.AudioContext || window.webkitAudioContext)();
-      const comp = ac.createDynamicsCompressor();
       volume = ac.createGain();
       volume.gain.value = userVolume;
-      comp.connect(volume); volume.connect(ac.destination);
+      volume.connect(ac.destination);
+      // пианино идёт через компрессор, песня — напрямую на громкость
+      const comp = ac.createDynamicsCompressor();
+      const pianoLevel = ac.createGain();
+      pianoLevel.gain.value = 1.4;
+      comp.connect(pianoLevel); pianoLevel.connect(volume);
       master = ac.createGain();
       master.gain.value = 0;
       master.connect(comp);
@@ -424,27 +437,75 @@
       }
     }
 
+    function ramp(param, to, time) {
+      const now = ac.currentTime;
+      param.cancelScheduledValues(now);
+      param.setValueAtTime(param.value, now);
+      param.linearRampToValueAtTime(to, now + time);
+    }
+
+    function decodeTrack() {
+      if (!decoding) {
+        decoding = trackLoad
+          .then(() => {
+            if (!trackData) throw new Error("no track");
+            return new Promise((res, rej) => ac.decodeAudioData(trackData, res, rej));
+          })
+          .then(b => { trackBuf = b; })
+          .catch(() => { trackBuf = null; });
+      }
+      return decoding;
+    }
+
+    function startTrack() {
+      srcGain = ac.createGain();
+      srcGain.gain.value = 0;
+      srcGain.connect(volume);
+      src = ac.createBufferSource();
+      src.buffer = trackBuf;
+      src.loop = true;
+      src.connect(srcGain);
+      offset %= trackBuf.duration;
+      src.start(0, offset);
+      srcStartedAt = ac.currentTime - offset;
+      ramp(srcGain.gain, 1, 1.0);
+    }
+
+    function stopTrack() {
+      if (!src) return;
+      offset = (ac.currentTime - srcStartedAt) % trackBuf.duration; // продолжим с того же места
+      ramp(srcGain.gain, 0, 0.6);
+      src.stop(ac.currentTime + 0.65);
+      src = null; srcGain = null;
+    }
+
+    function startPiano() {
+      nextTime = ac.currentTime + 0.1;
+      ramp(master.gain, 0.9, 1.5);
+      clearInterval(timer);
+      timer = setInterval(tick, 40);
+      tick();
+    }
+
     return {
       get playing() { return playing; },
       start() {
         if (!ac) init();
         ac.resume();
         playing = true;
-        nextTime = ac.currentTime + 0.1;
-        master.gain.cancelScheduledValues(ac.currentTime);
-        master.gain.setValueAtTime(master.gain.value, ac.currentTime);
-        master.gain.linearRampToValueAtTime(0.9, ac.currentTime + 1.5);
-        clearInterval(timer);
-        timer = setInterval(tick, 40);
-        tick();
+        const token = ++playToken;
+        decodeTrack().then(() => {
+          if (!playing || token !== playToken) return;
+          trackBuf ? startTrack() : startPiano();
+        });
       },
       stop() {
         if (!ac) return;
         playing = false;
+        playToken++;
         clearInterval(timer);
-        master.gain.cancelScheduledValues(ac.currentTime);
-        master.gain.setValueAtTime(master.gain.value, ac.currentTime);
-        master.gain.linearRampToValueAtTime(0, ac.currentTime + 0.6);
+        ramp(master.gain, 0, 0.6);
+        stopTrack();
       },
       setVolume(v) {
         userVolume = v;
